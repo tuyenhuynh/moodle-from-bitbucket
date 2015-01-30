@@ -1,0 +1,10 @@
+{
+  "name": "moodle-course-dialogupdate",
+  "builds": {
+    "moodle-course-dialogupdate": {
+      "jsfiles": [
+        "dialogupdate.js"
+      ]
+    }
+  }
+}

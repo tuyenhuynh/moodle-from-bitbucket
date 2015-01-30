@@ -43,6 +43,7 @@ Y.extend(MODCHOOSER, M.core.chooserdialogue, {
      */
     initializer: function() {
         var sectionclass = M.course.format.get_sectionwrapperclass();
+
         if (sectionclass) {
             CSS.SECTION = '.' + sectionclass;
         }
@@ -125,6 +126,10 @@ Y.extend(MODCHOOSER, M.core.chooserdialogue, {
             this.sectionid = 0;
         }
         this.display_chooser(e);
+        // Set up mod add settings dialog.
+        M.course.dialogadd().setupDialog();
+        Y.one(".moodle-dialogue-base .submitbutton[type=submit][value=Add]").on('click', this.cancel_popup, this);
+        Y.one(".moodle-dialogue-base .addcancel").on('click', M.course.dialogadd().detachDialog, this);
     },
 
     /**

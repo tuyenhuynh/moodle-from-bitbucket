@@ -1,0 +1,11 @@
+{
+  "moodle-course-dialogadd": {
+    "requires": [
+      "io-base",
+      "io-form",
+      "anim",
+      "moodle-course-coursebase"
+      ]
+
+  }
+}

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -36,6 +35,7 @@ $update = optional_param('update', 0, PARAM_INT);
 $return = optional_param('return', 0, PARAM_BOOL);    //return to course/view.php if false or mod/modname/view.php if true
 $type   = optional_param('type', '', PARAM_ALPHANUM); //TODO: hopefully will be removed in 2.0
 $sectionreturn = optional_param('sr', null, PARAM_INT);
+$ajaxcall = optional_param('isformajax', 0, PARAM_INT);
 
 $url = new moodle_url('/course/modedit.php');
 $url->param('sr', $sectionreturn);
@@ -142,9 +142,9 @@ $mform = new $mformclassname($data, $cw->section, $cm, $course);
 $mform->set_data($data);
 
 if ($mform->is_cancelled()) {
-    if ($return && !empty($cm->id)) {
+    if ($ajaxcall == 0 && $return && !empty($cm->id)) {
         redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$cm->id");
-    } else {
+    } else if ($ajaxcall == 0) {
         redirect(course_get_url($course, $cw->section, array('sr' => $sectionreturn)));
     }
 } else if ($fromform = $mform->get_data()) {
@@ -163,14 +163,14 @@ if ($mform->is_cancelled()) {
         print_error('invaliddata');
     }
 
-    if (isset($fromform->submitbutton)) {
+    if ($ajaxcall == 0 && isset($fromform->submitbutton)) {
         if (empty($fromform->showgradingmanagement)) {
             redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$fromform->coursemodule");
         } else {
             $returnurl = new moodle_url("/mod/$module->name/view.php", array('id' => $fromform->coursemodule));
             redirect($fromform->gradingman->get_management_url($returnurl));
         }
-    } else {
+    } else if ($ajaxcall == 0) {
         redirect(course_get_url($course, $cw->section, array('sr' => $sectionreturn)));
     }
     exit;
@@ -186,23 +186,61 @@ if ($mform->is_cancelled()) {
         $context = context_course::instance($course->id);
     }
 
-    $PAGE->set_heading($course->fullname);
-    $PAGE->set_title($streditinga);
-    $PAGE->set_cacheable(false);
+    if ($ajaxcall == 0) {
+        $PAGE->set_heading($course->fullname);
+        $PAGE->set_title($streditinga);
+        $PAGE->set_cacheable(false);
 
-    if (isset($navbaraddition)) {
-        $PAGE->navbar->add($navbaraddition);
+        if (isset($navbaraddition)) {
+            $PAGE->navbar->add($navbaraddition);
+        }
+        echo $OUTPUT->header();
+        if (get_string_manager()->string_exists('modulename_help', $module->name)) {
+            echo $OUTPUT->heading_with_help($pageheading, 'modulename', $module->name, 'icon');
+        } else {
+            echo $OUTPUT->heading_with_help($pageheading, '', $module->name, 'icon');
+        }
     }
 
-    echo $OUTPUT->header();
+    // If we use AJAX, need to create javascript form validator and load addition libraries.
+    if ($ajaxcall != 0) {
+        $OUTPUT->header();
+        ob_start();
+        $mform->display();
+        $out1 = ob_get_contents();
+        $script = new DOMDocument();
+        $script->loadHTML($out1);
+        $script = $script->getElementsByTagName('script');
+        $validatename = "modavjs.js";
+        $additionalname = "modajs.js";
+        if ($ajaxcall == 2) {
+            $validatename = "moduvjs.js";
+            $additionalname = "modujs.js";
+        }
+        $file = fopen($validatename, "w") or die("Unable to open file!");
+        foreach ($script as $item) {
+            fwrite($file, $item->nodeValue . "\n");
+        }
+        fclose($file);
+        $file = fopen($additionalname, "w") or die("Unable to open file!");
+        $script = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $script->loadHTML($OUTPUT->footer(), LIBXML_NOWARNING);
+        libxml_clear_errors();
+        $script = $script->getElementsByTagName('script');
+        foreach ($script as $item) {
+            fwrite($file, $item->nodeValue . "\n");
+        }
+        if ($ajaxcall == 1) {
+            fwrite($file, "Y.use(\"moodle-course-dialogadd\", function() {M.course.dialogadd().change_submit();});" . "\n");
+        } else if ($ajaxcall == 2) {
+            fwrite($file, "Y.use(\"moodle-course-dialogupdate\", function() {M.course.dialogupdate().change_submit();});" . "\n");
+        }
 
-    if (get_string_manager()->string_exists('modulename_help', $module->name)) {
-        echo $OUTPUT->heading_with_help($pageheading, 'modulename', $module->name, 'icon');
-    } else {
-        echo $OUTPUT->heading_with_help($pageheading, '', $module->name, 'icon');
+        fclose($file);
     }
-
-    $mform->display();
-
-    echo $OUTPUT->footer();
+    if ($ajaxcall == 0) {
+        $mform->display();
+        echo $OUTPUT->footer();
+    }
 }

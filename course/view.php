@@ -41,7 +41,6 @@
     if ($section) {
         $urlparams['section'] = $section;
     }
-
     $PAGE->set_url('/course/view.php', $urlparams); // Defined here to avoid notices on errors etc
 
     // Prevent caching of this page to stop confusion when changing page after making AJAX changes
@@ -289,7 +288,21 @@
     // anything after that point.
     course_view(context_course::instance($course->id), $section);
 
-    // Include course AJAX
+    // Include course AJAX.
     include_course_ajax($course, $modnamesused);
+
+    // Include update activity/resource dialog.
+    $directories = glob($CFG->dirroot . '/mod/*' , GLOB_ONLYDIR);
+    $modules = [];
+    foreach ($directories as $directory) {
+        $PAGE->requires->string_for_js('pluginname', pathinfo($directory)['basename']);
+        $key = pathinfo($directory)['basename'];
+        $modules[$key] = get_string('pluginname', $key);
+    }
+    $PAGE->requires->strings_for_js(array(
+                'expandall',
+                'collapseall',
+                ), 'moodle');
+    $PAGE->requires->yui_module('moodle-course-dialogupdate', 'M.course.dialogupdate().setupDialog', [$modules]);
 
     echo $OUTPUT->footer();

@@ -42,6 +42,7 @@ $course        = optional_param('course', 0, PARAM_INT);
 $groupmode     = optional_param('groupmode', -1, PARAM_INT);
 $cancelcopy    = optional_param('cancelcopy', 0, PARAM_BOOL);
 $confirm       = optional_param('confirm', 0, PARAM_BOOL);
+$ajaxcall         = optional_param('isformajax', 0, PARAM_INT);
 
 // This page should always redirect
 $url = new moodle_url('/course/mod.php');
@@ -60,6 +61,10 @@ if ($type !== '') {
 if ($groupmode !== '') {
     $url->param('groupmode', $groupmode);
 }
+
+if ($ajaxcall != 0) {
+    $url->param('isformajax', $ajaxcall);
+}
 $PAGE->set_url($url);
 
 require_login();
@@ -71,12 +76,13 @@ if (!empty($add)) {
     $type        = optional_param('type', '', PARAM_ALPHA);
     $returntomod = optional_param('return', 0, PARAM_BOOL);
 
-    redirect("$CFG->wwwroot/course/modedit.php?add=$add&type=$type&course=$id&section=$section&return=$returntomod&sr=$sectionreturn");
+    redirect("$CFG->wwwroot/course/modedit.php?add=$add&type=$type&course=$id&section=$section&return=$returntomod" .
+        "&sr=$sectionreturn&isformajax=$ajaxcall");
 
 } else if (!empty($update)) {
     $cm = get_coursemodule_from_id('', $update, 0, true, MUST_EXIST);
     $returntomod = optional_param('return', 0, PARAM_BOOL);
-    redirect("$CFG->wwwroot/course/modedit.php?update=$update&return=$returntomod&sr=$sectionreturn");
+    redirect("$CFG->wwwroot/course/modedit.php?update=$update&return=$returntomod&sr=$sectionreturn&isformajax=$ajaxcall");
 
 } else if (!empty($duplicate) and confirm_sesskey()) {
      $cm     = get_coursemodule_from_id('', $duplicate, 0, true, MUST_EXIST);

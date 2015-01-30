@@ -2,7 +2,8 @@
   "moodle-course-modchooser": {
     "requires": [
         "moodle-core-chooserdialogue",
-        "moodle-course-coursebase"
+        "moodle-course-coursebase",
+        "moodle-course-dialogadd"
     ]
   }
 }
