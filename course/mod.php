@@ -42,11 +42,10 @@ $course        = optional_param('course', 0, PARAM_INT);
 $groupmode     = optional_param('groupmode', -1, PARAM_INT);
 $cancelcopy    = optional_param('cancelcopy', 0, PARAM_BOOL);
 $confirm       = optional_param('confirm', 0, PARAM_BOOL);
-$ajaxcall         = optional_param('isformajax', 0, PARAM_INT);
 
 // This page should always redirect
 $url = new moodle_url('/course/mod.php');
-foreach (compact('indent','update','hide','show','copy','moveto','movetosection','delete','course','cancelcopy','confirm') as $key=>$value) {
+foreach (compact('indent', 'update', 'hide', 'show', 'copy', 'moveto', 'movetosection', 'delete', 'course', 'cancelcopy', 'confirm') as $key => $value) {
     if ($value !== 0) {
         $url->param($key, $value);
     }
@@ -62,9 +61,6 @@ if ($groupmode !== '') {
     $url->param('groupmode', $groupmode);
 }
 
-if ($ajaxcall != 0) {
-    $url->param('isformajax', $ajaxcall);
-}
 $PAGE->set_url($url);
 
 require_login();
@@ -76,13 +72,12 @@ if (!empty($add)) {
     $type        = optional_param('type', '', PARAM_ALPHA);
     $returntomod = optional_param('return', 0, PARAM_BOOL);
 
-    redirect("$CFG->wwwroot/course/modedit.php?add=$add&type=$type&course=$id&section=$section&return=$returntomod" .
-        "&sr=$sectionreturn&isformajax=$ajaxcall");
+    redirect("$CFG->wwwroot/course/modedit.php?add=$add&type=$type&course=$id&section=$section&return=$returntomod&sr=$sectionreturn");
 
 } else if (!empty($update)) {
     $cm = get_coursemodule_from_id('', $update, 0, true, MUST_EXIST);
     $returntomod = optional_param('return', 0, PARAM_BOOL);
-    redirect("$CFG->wwwroot/course/modedit.php?update=$update&return=$returntomod&sr=$sectionreturn&isformajax=$ajaxcall");
+    redirect("$CFG->wwwroot/course/modedit.php?update=$update&return=$returntomod&sr=$sectionreturn");
 
 } else if (!empty($duplicate) and confirm_sesskey()) {
      $cm     = get_coursemodule_from_id('', $duplicate, 0, true, MUST_EXIST);
@@ -109,7 +104,7 @@ if (!empty($add)) {
     if (!$confirm or !confirm_sesskey()) {
         $fullmodulename = get_string('modulename', $cm->modname);
 
-        $optionsyes = array('confirm'=>1, 'delete'=>$cm->id, 'sesskey'=>sesskey(), 'sr' => $sectionreturn);
+        $optionsyes = array('confirm' => 1, 'delete' => $cm->id, 'sesskey' => sesskey(), 'sr' => $sectionreturn);
 
         $strdeletecheck = get_string('deletecheck', '', $fullmodulename);
         $strparams = (object)array('type' => $fullmodulename, 'name' => $cm->name);
@@ -148,16 +143,16 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     require_capability('moodle/course:manageactivities', $modcontext);
 
     if (!empty($movetosection)) {
-        if (!$section = $DB->get_record('course_sections', array('id'=>$movetosection, 'course'=>$cm->course))) {
+        if (!$section = $DB->get_record('course_sections', array('id' => $movetosection, 'course' => $cm->course))) {
             print_error('sectionnotexist');
         }
-        $beforecm = NULL;
+        $beforecm = null;
 
     } else {                      // normal moveto
         if (!$beforecm = get_coursemodule_from_id('', $moveto, $cm->course, true)) {
             print_error('invalidcoursemodule');
         }
-        if (!$section = $DB->get_record('course_sections', array('id'=>$beforecm->section, 'course'=>$cm->course))) {
+        if (!$section = $DB->get_record('course_sections', array('id' => $beforecm->section, 'course' => $cm->course))) {
             print_error('sectionnotexist');
         }
     }
@@ -193,7 +188,7 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
         $cm->indent = 0;
     }
 
-    $DB->set_field('course_modules', 'indent', $cm->indent, array('id'=>$cm->id));
+    $DB->set_field('course_modules', 'indent', $cm->indent, array('id' => $cm->id));
 
     rebuild_course_cache($cm->course);
 
@@ -221,9 +216,9 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     $modcontext = context_module::instance($cm->id);
     require_capability('moodle/course:activityvisibility', $modcontext);
 
-    $section = $DB->get_record('course_sections', array('id'=>$cm->section), '*', MUST_EXIST);
+    $section = $DB->get_record('course_sections', array('id' => $cm->section), '*', MUST_EXIST);
 
-    $module = $DB->get_record('modules', array('id'=>$cm->module), '*', MUST_EXIST);
+    $module = $DB->get_record('modules', array('id' => $cm->module), '*', MUST_EXIST);
 
     if ($module->visible and ($section->visible or (SITEID == $cm->course))) {
         set_coursemodule_visible($cm->id, 1);
@@ -256,7 +251,7 @@ if ((!empty($movetosection) or !empty($moveto)) and confirm_sesskey()) {
     $modcontext = context_module::instance($cm->id);
     require_capability('moodle/course:manageactivities', $modcontext);
 
-    $section = $DB->get_record('course_sections', array('id'=>$cm->section), '*', MUST_EXIST);
+    $section = $DB->get_record('course_sections', array('id' => $cm->section), '*', MUST_EXIST);
 
     $USER->activitycopy              = $copy;
     $USER->activitycopycourse        = $cm->course;

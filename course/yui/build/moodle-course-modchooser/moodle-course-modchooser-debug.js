@@ -129,8 +129,9 @@ Y.extend(MODCHOOSER, M.core.chooserdialogue, {
         }
         this.display_chooser(e);
         // Set up mod add settings dialog.
+        //TODO: fix error here
         M.course.dialogadd().setupDialog();
-        Y.one(".moodle-dialogue-base .submitbutton[type=submit][value=Add]").on('click', this.cancel_popup, this);
+        Y.one(".moodle-dialogue-base .submitbutton[type=submit][name=submitbutton]").on('click', this.cancel_popup, this);
         Y.one(".moodle-dialogue-base .addcancel").on('click', M.course.dialogadd().detachDialog, this);
     },
 
