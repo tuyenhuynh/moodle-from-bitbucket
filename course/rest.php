@@ -167,6 +167,11 @@ switch($requestmethod) {
                     //]]>
                     ';
                 $script .= 'Y.use("moodle-course-dialogadd", function() {M.course.dialogadd().change_submit();})';
+                $pattern = "/(validate_mod_" . $data->add . '_mod_form)' . ';/';
+                preg_match($pattern,$endcode, $matches); 
+                $validator = 'window.' .  $matches[1] .'='. $matches[0];
+                $validator_call = "document.getElementById('mform1').addEventListener";
+                $script = str_replace($validator_call, $validator . "\n" . $validator_call, $script);
                 echo json_encode(array('html' => $html, 'script' => $script));
                 break;
             case 'updatemod':
@@ -244,14 +249,21 @@ switch($requestmethod) {
                 $endcode = $PAGE->requires->get_end_code();
                 
                 $firstscript = strpos($endcode, "</script>"); 
-                $endcode = substr($endcode, $firstscript + 9); 
-                
+                $endcode = substr($endcode, $firstscript + strlen("</script>")); 
                 $script .= preg_replace('/<\/?(script|link)[^>]*>/', '', $endcode);
                 $script .= '//<![CDATA[
                     M.yui.add_module({"core_filepicker":{"name":"core_filepicker","fullpath":"http:\/\/localhost\/moodle\/lib\/javascript.php\/-1\/repository\/filepicker.js","requires":["base","node","node-event-simulate","json","async-queue","io-base","io-upload-iframe","io-form","yui2-treeview","panel","cookie","datatable","datatable-sort","resize-plugin","dd-plugin","escape","moodle-core_filepicker"]},"mathjax":{"name":"mathjax","fullpath":"https:\/\/cdn.mathjax.org\/mathjax\/2.7-latest\/MathJax.js?delayStartupUntil=configured"},"core_dndupload":{"name":"core_dndupload","fullpath":"http:\/\/localhost\/moodle\/lib\/javascript.php\/-1\/lib\/form\/dndupload.js","requires":["node","event","json","core_filepicker"]},"form_filemanager":{"name":"form_filemanager","fullpath":"http:\/\/localhost\/moodle\/lib\/javascript.php\/-1\/lib\/form\/filemanager.js","requires":["moodle-core-notification-dialogue","core_filepicker","base","io-base","node","json","core_dndupload","panel","resize-plugin","dd-plugin"]},"mform":{"name":"mform","fullpath":"http:\/\/localhost\/moodle\/lib\/javascript.php\/-1\/lib\/form\/form.js","requires":["base","node"]}});
                     //]]>
                     ';
                 $script .= 'Y.use("moodle-course-dialogupdate", function() {M.course.dialogupdate().change_submit();})';
+                $pattern = "/(validate_mod_" . $module->name . '_mod_form)' . ';/';
+                preg_match($pattern,$endcode, $matches); 
+                $validator = 'window.' .  $matches[1] .'='. $matches[0];
+                $validator_call = "document.getElementById('mform1').addEventListener";
+                $script = str_replace($validator_call, $validator . "\n" . $validator_call, $script);
+                $file = fopen('test.js',  "w");
+                fwrite($file, $module->name);
+                fclose($file);   
                 echo json_encode(array('html' => $html, 'script' => $script));
                 break;
         }

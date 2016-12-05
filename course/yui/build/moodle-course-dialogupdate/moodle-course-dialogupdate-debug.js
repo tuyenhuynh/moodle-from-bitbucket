@@ -70,29 +70,29 @@ YUI.add('moodle-course-dialogupdate', function (Y, NAME) {
             submit_click: function (e) {
                 var modulename  = Y.one(CSS.MODULENAME).get("value"); 
                 var validatorName = 'validate_mod_' + modulename + '_mod_form';   
-                e.preventDefault();
-                // Disable submit buttons to say moodle, what action we do.
-                Y.one(CSS.CANCELBUTTON).set('disabled', 'disabled');
-                if (Y.one(CSS.SUBMITBUTTON) !== null) {
-                    Y.one(CSS.SUBMITBUTTON).set('disabled', 'disabled');
+                if(eval(validatorName)()){
+                    e.preventDefault();
+                    // Disable submit buttons to say moodle, what action we do.
+                    Y.one(CSS.CANCELBUTTON).set('disabled', 'disabled');
+                    if (Y.one(CSS.SUBMITBUTTON) !== null) {
+                        Y.one(CSS.SUBMITBUTTON).set('disabled', 'disabled');
+                    }
+
+                    var courseId = Y.one(CSS.COURSEID).get("value");
+                    var sesskey = Y.one(CSS.SESSKEY).get("value");
+                    var update = Y.one(CSS.UPDATE).get("value");
+                    // AJAX post form request to server side.
+                    var cfg = {
+                        method: "post",
+                        on: {
+                            success: this.post_success
+
+                        },
+                        arguments: this,
+                        form: { id:CSS.FORM}
+                    };
+                    Y.io(M.cfg.wwwroot + "/course/rest.php?class=updatemod&courseId=" + courseId + "&sesskey=" + sesskey + "&update=" + update, cfg);                    
                 }
-
-                var courseId = Y.one(CSS.COURSEID).get("value");
-                var sesskey = Y.one(CSS.SESSKEY).get("value");
-                var update = Y.one(CSS.UPDATE).get("value");
-                // AJAX post form request to server side.
-                var cfg = {
-                    method: "post",
-                    on: {
-                        success: this.post_success
-
-                    },
-                    arguments: this,
-                    form: { id:CSS.FORM}
-                };
-                
-                Y.io(M.cfg.wwwroot + "/course/rest.php?class=updatemod&courseId=" + courseId + "&sesskey=" + sesskey + "&update=" + update, cfg);
-            
             },
             /**
              * Helper function, it handle response of submit form.",
@@ -214,8 +214,7 @@ YUI.add('moodle-course-dialogupdate', function (Y, NAME) {
                 var scriptElement = document.createElement('script');
                 scriptElement.textContent = responseObject.script;
                 document.body.appendChild(scriptElement);
-
-                console.log(responseObject); 
+                console.log(window.validate_mod_assign_mod_form); 
 
             },
             /**

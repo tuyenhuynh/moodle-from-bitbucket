@@ -58,23 +58,25 @@ YUI.add('moodle-course-dialogadd', function (Y, NAME) {
             submit_click: function (e) {
                 var modulename = Y.one(CSS.MODULENAME).get('value');
                 var validatorName = 'validate_mod_' + modulename + '_mod_form';  
-                e.preventDefault();
-                // Disable submit buttons to say moodle, what action we do.
-                Y.one(CSS.CANCELBUTTON).set('disabled', 'disabled');
-                if (Y.one(CSS.SUBMITBUTTON) !== null) {
-                    Y.one(CSS.SUBMITBUTTON).set('disabled', 'disabled');
+                if(eval(validatorName)()){
+                    e.preventDefault();
+                    // Disable submit buttons to say moodle, what action we do.
+                    Y.one(CSS.CANCELBUTTON).set('disabled', 'disabled');
+                    if (Y.one(CSS.SUBMITBUTTON) !== null) {
+                        Y.one(CSS.SUBMITBUTTON).set('disabled', 'disabled');
+                    }
+                    var courseId = Y.one(CSS.COURSEIDINPUT).get("value");
+                    // AJAX post form request to server side.
+                    var cfg = {
+                        method: "post",
+                        on: {
+                            success: this.post_success
+                        },
+                        arguments: this,
+                        form: { id: CSS.FORM}
+                    };
+                    Y.io(M.cfg.wwwroot + "/course/rest.php?class=addmod&courseId="+courseId, cfg);  
                 }
-                var courseId = Y.one(CSS.COURSEIDINPUT).get("value");
-                // AJAX post form request to server side.
-                var cfg = {
-                    method: "post",
-                    on: {
-                        success: this.post_success
-                    },
-                    arguments: this,
-                    form: { id: CSS.FORM}
-                };
-                Y.io(M.cfg.wwwroot + "/course/rest.php?class=addmod&courseId="+courseId, cfg);   
             },
             /**
              * Helper function, it handle response of submit form.",
