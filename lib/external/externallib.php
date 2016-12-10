@@ -329,6 +329,8 @@ class core_external extends external_api {
         $PAGE->start_collecting_javascript_requirements();
         $data = component_callback($params['component'], 'output_fragment_' . $params['callback'], array($arguments));
         $jsfooter = $PAGE->requires->get_end_code();
+        
+        //$jsfooter = ""; 
         $output = array('html' => $data, 'javascript' => $jsfooter);
         return $output;
     }
