@@ -781,3 +781,94 @@ function prepare_new_moduleinfo_data($course, $modulename, $section) {
 
     return array($module, $context, $cw, $cm, $data);
 }
+
+/**
+ * Get update course module form.
+ * This function returns update course module form
+ *
+ * @param  array $args List of named arguments for the fragment loader.
+ * @since  Moodle 3.2
+ */
+function update_module_form($args){
+    global $DB, $CFG;
+    require_once($CFG->libdir.'/gradelib.php');
+    
+    foreach ($args as $key => $value) {
+        error_log($key. ' = '.$value); 
+    }
+
+    $update             = clean_param($args['update'], PARAM_INT);
+    $sectionreturn      = clean_param($args['sr'], PARAM_INT);
+
+    // Check the course module exists.
+    $cm = get_coursemodule_from_id('', $update, 0, false, MUST_EXIST);
+
+    // Check the course exists.
+    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+
+    list($cm, $context, $module, $data, $cw) = get_moduleinfo_data($cm, $course);
+    $data->return = 0; //default value of param return
+    $data->sr = $sectionreturn;
+    $data->update = $update;
+
+    $modmoodleform = "$CFG->dirroot/mod/$module->name/mod_form.php";
+    if (file_exists($modmoodleform)) {
+        require_once($modmoodleform);
+    } else {
+        print_error('noformdesc');
+    }
+
+    $mformclassname = 'mod_'.$module->name.'_mod_form';
+    $mform = new $mformclassname($data, $cw->section, $cm, $course);
+    $mform->set_data($data);
+
+    $html = '';
+
+    // Form processing
+    if ($mform->is_cancelled()) {
+        // Handle form cancel operation, if cancel button is present on form
+        if ($return && !empty($cm->id)) {
+            redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$cm->id");
+        } else {
+            redirect(course_get_url($course, $cw->section, array('sr' => $sectionreturn)));
+        }
+    } else if ($fromform = $mform->get_data()) {
+        // In this case you process validated data. $mform->get_data() returns data posted in form.
+        // Convert the grade pass value - we may be using a language which uses commas,
+        // rather than decimal points, in numbers. These need to be converted so that
+        // they can be added to the DB.
+        if (isset($fromform->gradepass)) {
+            $fromform->gradepass = unformat_float($fromform->gradepass);
+        }
+
+        if (!empty($fromform->update)) {
+            list($cm, $fromform) = update_moduleinfo($cm, $fromform, $course, $mform);
+        } else if (!empty($fromform->add)) {
+            $fromform = add_moduleinfo($fromform, $course, $mform);
+        } else {
+            print_error('invaliddata');
+        }
+
+        if (isset($fromform->submitbutton)) {
+            if (empty($fromform->showgradingmanagement)) {
+                redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$fromform->coursemodule");
+            } else {
+                $returnurl = new moodle_url("/mod/$module->name/view.php", array('id' => $fromform->coursemodule));
+                redirect($fromform->gradingman->get_management_url($returnurl));
+            }
+        } else {
+            redirect(course_get_url($course, $cw->section, array('sr' => $sectionreturn)));
+        }
+        exit;
+
+    } else {
+        // This branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
+        // or on the first display of the form.
+        $html = $mform->render();
+    }
+    error_log($html);
+    return $html;
+
+}
+
+
