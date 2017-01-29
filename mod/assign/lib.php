@@ -1515,43 +1515,8 @@ function mod_assign_output_fragment_gradingpanel($args) {
         'formdata' => $formdata
     );
 
-    $result = $assign->view('gradingpanel', $viewargs);
-    error_log($result);
-    return $result; //$assign->view('gradingpanel', $viewargs);
+    return $assign->view('gradingpanel', $viewargs);
 }
-
-function mod_assign_output_fragment_modadd($args) {
-    global $CFG;
-
-    $context = $args['context'];
-
-    if ($context->contextlevel != CONTEXT_MODULE) {
-        return null;
-    }
-    require_once($CFG->dirroot . '/mod/assign/locallib.php');
-    $assign = new assign($context, null, null);
-
-    $userid = clean_param($args['userid'], PARAM_INT);
-    //$attemptnumber = clean_param($args['attemptnumber'], PARAM_INT);
-    $formdata = array();
-    if (!empty($args['jsonformdata'])) {
-        $serialiseddata = json_decode($args['jsonformdata']);
-        parse_str($serialiseddata, $formdata);
-    }
-    $viewargs = array(
-        'userid' => $userid,
-        // 'attemptnumber' => $attemptnumber,
-        'formdata' => $formdata
-    );
-
-    $result = $assign->view('gradingpanel', $viewargs);
-    error_log($result);
-    return $result;
-}
-
-
-
-
 
 /**
  * Check if the module has any update that affects the current user since a given time.
@@ -1587,4 +1552,17 @@ function assign_check_updates_since(cm_info $cm, $from, $filter = array()) {
     }
 
     return $updates;
+}
+
+/**
+ * Get update assign form.
+ * This function returns update assign form
+ *
+ * @param  array $args List of named arguments for the fragment loader.
+ * @since  Moodle 3.2
+ */
+function mod_assign_output_fragment_update_assign($args) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/modlib.php');
+    return update_module_form($args); 
 }
