@@ -792,10 +792,6 @@ function prepare_new_moduleinfo_data($course, $modulename, $section) {
 function update_module_form($args){
     global $DB, $CFG;
     require_once($CFG->libdir.'/gradelib.php');
-    
-    foreach ($args as $key => $value) {
-        error_log($key. ' = '.$value); 
-    }
 
     $update             = clean_param($args['update'], PARAM_INT);
     $sectionreturn      = clean_param($args['sr'], PARAM_INT);
@@ -866,7 +862,7 @@ function update_module_form($args){
         // or on the first display of the form.
         $html = $mform->render();
     }
-    error_log($html);
+
     return $html;
 
 }
