@@ -793,6 +793,10 @@ function update_module_form($args){
     global $DB, $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
+    // remove no submit buttons
+    unset($_POST['boundary_add_fields']);
+    unset($_POST['option_add_fields']);
+    
     $update             = clean_param($args['update'], PARAM_INT);
     $sectionreturn      = clean_param($args['sr'], PARAM_INT);
 
@@ -818,16 +822,12 @@ function update_module_form($args){
     $mform = new $mformclassname($data, $cw->section, $cm, $course);
     $mform->set_data($data);
 
-    $html = '';
-
+    $fromform = $mform->get_data(); 
+    
     // Form processing
     if ($mform->is_cancelled()) {
         // Handle form cancel operation, if cancel button is present on form
-        if ($return && !empty($cm->id)) {
-            redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$cm->id");
-        } else {
-            redirect(course_get_url($course, $cw->section, array('sr' => $sectionreturn)));
-        }
+        $html = '';
     } else if ($fromform = $mform->get_data()) {
         // In this case you process validated data. $mform->get_data() returns data posted in form.
         // Convert the grade pass value - we may be using a language which uses commas,
@@ -839,24 +839,10 @@ function update_module_form($args){
 
         if (!empty($fromform->update)) {
             list($cm, $fromform) = update_moduleinfo($cm, $fromform, $course, $mform);
-        } else if (!empty($fromform->add)) {
-            $fromform = add_moduleinfo($fromform, $course, $mform);
         } else {
             print_error('invaliddata');
         }
-
-        if (isset($fromform->submitbutton)) {
-            if (empty($fromform->showgradingmanagement)) {
-                redirect("$CFG->wwwroot/mod/$module->name/view.php?id=$fromform->coursemodule");
-            } else {
-                $returnurl = new moodle_url("/mod/$module->name/view.php", array('id' => $fromform->coursemodule));
-                redirect($fromform->gradingman->get_management_url($returnurl));
-            }
-        } else {
-            redirect(course_get_url($course, $cw->section, array('sr' => $sectionreturn)));
-        }
-        exit;
-
+        $html = '';
     } else {
         // This branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
         // or on the first display of the form.
