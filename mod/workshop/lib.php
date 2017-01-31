@@ -1846,3 +1846,16 @@ function workshop_reset_userdata(stdClass $data) {
 
     return $status;
 }
+
+/**
+ * Load/update course module workshop
+ *
+ * @param  array $args List of named arguments for the fragment loader/updater.
+ * @since  Moodle 3.3
+ */
+function mod_workshop_output_fragment_update_workshop($args) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/modlib.php');
+    require_once($CFG->libdir . '/plagiarismlib.php');
+    return update_module_form($args); 
+}

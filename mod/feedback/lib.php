@@ -3317,3 +3317,15 @@ function feedback_can_view_analysis($feedback, $context, $courseid = false) {
 
     return feedback_is_already_submitted($feedback->id, $courseid);
 }
+
+/**
+ * Load/update course module feedback
+ *
+ * @param  array $args List of named arguments for the fragment loader/updater.
+ * @since  Moodle 3.3
+ */
+function mod_feedback_output_fragment_update_feedback($args) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/modlib.php');
+    return update_module_form($args); 
+}

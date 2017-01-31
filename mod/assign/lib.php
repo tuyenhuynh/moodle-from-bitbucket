@@ -1555,11 +1555,10 @@ function assign_check_updates_since(cm_info $cm, $from, $filter = array()) {
 }
 
 /**
- * Get update assign form.
- * This function returns update assign form
+ * Load/update course module assign
  *
- * @param  array $args List of named arguments for the fragment loader.
- * @since  Moodle 3.2
+ * @param  array $args List of named arguments for the fragment loader/updater.
+ * @since  Moodle 3.3
  */
 function mod_assign_output_fragment_update_assign($args) {
     global $CFG;

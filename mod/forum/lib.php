@@ -8074,3 +8074,17 @@ function forum_check_updates_since(cm_info $cm, $from, $filter = array()) {
 
     return $updates;
 }
+
+/**
+ * Load/update course module forum
+ *
+ * @param  array $args List of named arguments for the fragment loader/updater.
+ * @since  Moodle 3.3
+ */
+function mod_forum_output_fragment_update_forum($args) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/modlib.php');
+    require_once($CFG->libdir . '/plagiarismlib.php');
+    return update_module_form($args); 
+}
+

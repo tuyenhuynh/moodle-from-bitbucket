@@ -1418,3 +1418,16 @@ function lesson_update_media_file($lessonid, $context, $draftitemid) {
         $DB->set_field('lesson', 'mediafile', '', array('id' => $lessonid));
     }
 }
+
+/**
+ * Load/update course module lesson
+ *
+ * @param  array $args List of named arguments for the fragment loader/updater.
+ * @since  Moodle 3.3
+ */
+function mod_lesson_output_fragment_update_lesson($args) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/modlib.php');
+    return update_module_form($args); 
+}
+

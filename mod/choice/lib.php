@@ -1167,3 +1167,15 @@ function choice_check_updates_since(cm_info $cm, $from, $filter = array()) {
 
     return $updates;
 }
+
+/**
+ * Load/update course module choice
+ *
+ * @param  array $args List of named arguments for the fragment loader/updater.
+ * @since  Moodle 3.3
+ */
+function mod_choice_output_fragment_update_choice($args) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/modlib.php');
+    return update_module_form($args); 
+}

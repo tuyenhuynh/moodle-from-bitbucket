@@ -4092,3 +4092,15 @@ function data_set_config(&$database, $key, $value) {
         $DB->set_field('data', 'config', $database->config, ['id' => $database->id]);
     }
 }
+
+/**
+ * Load/update course module chat
+ *
+ * @param  array $args List of named arguments for the fragment loader/updater.
+ * @since  Moodle 3.3
+ */
+function mod_data_output_fragment_update_data($args) {
+    global $CFG;
+    require_once($CFG->dirroot . '/course/modlib.php');
+    return update_module_form($args); 
+}
